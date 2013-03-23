@@ -17,6 +17,7 @@ DragAcceptFiles hwnd, 1
 
 filename=""
 flag=0
+title "‚±‚¤‚µ‚Ä‚±‚¤‚¶‚á"
 gosub *drawjaro
 
 stop
@@ -43,9 +44,9 @@ repeat ndrop
 	gosub *drawjaro
 	flag = 2
 	gosub *drawjaro
-	delete filename
 	flag = 3
 	gosub *drawjaro
+	delete filename
 	flag = 4
 	gosub *drawjaro
 loop
