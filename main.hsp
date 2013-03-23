@@ -1,0 +1,106 @@
+
+screen 0,400,150,screen_tool
+
+#uselib "shell32.dll"
+#func DragAcceptFiles "DragAcceptFiles" int,int
+#func DragQueryFile   "DragQueryFileA"  int,int,int,int
+#func DragQueryPoint  "DragQueryPoint"  int,int
+#func DragFinish      "DragFinish"      int
+
+#define WM_DROPFILES    0x0233
+
+; WM_DROPFILES メッセージハンドラを設定
+oncmd gosub *OnDropFiles, WM_DROPFILES
+
+; ファイルをドラッグ＆ドロップできるように設定
+DragAcceptFiles hwnd, 1
+
+filename=""
+flag=0
+gosub *drawjaro
+
+stop
+
+*OnDropFiles
+; --- ファイルがドロップされたとき ---
+
+; ドロップされたファイルの数を取得する
+hdrop = wParam                  ; ドロップファイル情報のハンドル
+DragQueryFile hdrop, -1, 0, 0
+ndrop = stat                    ; ファイルの数
+
+; 画面をクリア
+syscolor 5 : boxf
+syscolor 8 : pos 0,0
+
+; ファイル名を取得して表示
+sdim filename, 260
+repeat ndrop
+	DragQueryFile hdrop, cnt, varptr(filename), 260
+	flag = 0
+	gosub *drawjaro
+	flag = 1
+	gosub *drawjaro
+	flag = 2
+	gosub *drawjaro
+	delete filename
+	flag = 3
+	gosub *drawjaro
+	flag = 4
+	gosub *drawjaro
+loop
+
+; ドロップファイル情報をクリア (これをしないとメモリリークになる)
+DragFinish hdrop
+return
+
+*drawjaro
+    redraw 0
+    color 255,255,255
+    boxf 
+    color 0,0,0
+    file=getpath(filename,8)
+    switch flag
+    case 1
+	    b = "ここに"+file+"があるじゃろ"
+    	swbreak
+    case 2
+	    b = "こうして"
+    	swbreak
+    case 4
+	    b = "こうじゃ"
+    	swbreak
+    default
+	    b = ""
+    	swbreak
+    swend
+    pos 200-((strlen(b)*8)/2),20
+    mes b
+	pos 160,50
+	mes "( ＾ω＾)"
+    switch flag
+    case 0
+	    b = "⊃⊂"
+    	swbreak
+    case 1
+    	b = "⊃"+file+"⊂"
+    	swbreak
+    case 2
+    	b = "⊃)"+strmid(file,strlen(b)/3,strlen(b)/3)+"(⊂"
+    	swbreak
+    case 3
+	    b = "≡⊃)(⊂≡"
+    	swbreak
+   	case 4
+   		b = "⊃ .. ⊂"
+   		pos 180,84
+   		mes "‘∵"
+   		mes "‘:’;"
+   		swbreak
+    swend
+    b = b
+    pos 200-((strlen(b)*8)/2),68
+	mes b
+	redraw 1
+	wait 30
+	return
